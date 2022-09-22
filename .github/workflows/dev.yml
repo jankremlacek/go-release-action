@@ -3,7 +3,7 @@ name: Dev
 on:
   push:
     tags:
-      - 'v*'
+      - "v*.*.*"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -88,14 +88,14 @@ jobs:
       - name: Setup | Checksums
         run: for file in kikot-*/kikot-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
 
-      - name: Setup | Publish Release
-        #run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=jankremlacek/go-release-action
-        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #- name: Setup | Publish Release
+      #  run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build | Add Artifacts to Release
+      - name: Release | Add Artifacts to Release
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: kikot-*/kikot-*
-          tag_name: ${{ needs.release_please.outputs.tag_name }}
+          generate_release_notes: true
