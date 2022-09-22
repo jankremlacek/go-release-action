@@ -70,3 +70,31 @@ jobs:
         with:
           name: ${{matrix.name}}.tar.gz
           path: ${{matrix.name}}.tar.gz
+
+  # Release
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup | Artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Debug
+        run: |
+          echo "${{ github.repository }}"
+          ls -lah
+
+      - name: Setup | Checksums
+        run: for file in kikot-*/kikot-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
+
+      - name: Setup | Publish Release
+        #run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=jankremlacek/go-release-action
+        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build | Add Artifacts to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: kikot-*/kikot-*
+          tag_name: ${{ needs.release_please.outputs.tag_name }}
