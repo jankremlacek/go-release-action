@@ -20,7 +20,7 @@ jobs:
 
   # Ensure that the project could be successfully compiled
   build_check:
-    name: Compile
+    name: Check
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go
@@ -35,7 +35,7 @@ jobs:
       run: go test -v ./...
 
   # Build on Linux and macOS
-  test:
+  build:
     name: Build
     runs-on: ${{ matrix.os }}
     needs: build_check
@@ -46,8 +46,8 @@ jobs:
     #env:
     #  RUSTFLAGS: ${{ matrix.rustflags || '' }}
     steps:
-      - name: Setup | Checkout
-        uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
         with:
           go-version: 1.19
 
