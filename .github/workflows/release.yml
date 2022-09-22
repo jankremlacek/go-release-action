@@ -6,7 +6,7 @@ on:
       - "v*.*.*"
 
 env:
-  APP: "go-release-action"
+  APP: go-release-action
 
 jobs:
 
