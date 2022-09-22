@@ -62,7 +62,7 @@ jobs:
         run: |
           go build -v ./...
           ls -lah
-          tar czvf ${{matrix.name}}.tar.ga go-release-action
+          tar czvf ${{matrix.name}}.tar.gz go-release-action
 
 
       - name: Upload the build as an artifact
