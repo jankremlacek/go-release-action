@@ -1,0 +1,71 @@
+name: Dev
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+#env:
+#  CARGO_INCREMENTAL: 0
+#  CARGO_NET_RETRY: 10
+#  RUST_BACKTRACE: short
+#  RUSTFLAGS: "-D warnings"
+#  RUSTUP_MAX_RETRIES: 10
+#  MACOSX_DEPLOYMENT_TARGET: 10.7
+
+jobs:
+
+  # Ensure that the project could be successfully compiled
+  build_check:
+    name: Compile
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
+
+  # Build on Linux and macOS
+  test:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    needs: build_check
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+    env:
+    #  RUSTFLAGS: ${{ matrix.rustflags || '' }}
+    steps:
+      - name: Setup | Checkout
+        uses: actions/checkout@v3
+        with:
+          go-version: 1.19
+
+      - name: ls
+        run: ls -lah
+
+      - name: Run Linux Build
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          go build -v ./...
+
+      - name: Run Mac Build
+        if: matrix.os == 'macos-latest'
+        run: |
+          go build -v ./...
+
+      - name: Upload the build as an artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: do-release-action-${{matrix.os}}
+          path: do-release-action
