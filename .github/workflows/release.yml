@@ -5,9 +5,6 @@ on:
     tags:
       - "v*.*.*"
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
 jobs:
 
   # Ensure that the project could be successfully compiled
@@ -41,15 +38,9 @@ jobs:
             os: ubuntu-latest
             name: kikot-linux-adm64
 
-          #- target: x86_64-unknown-linux-musl
-          #  os: ubuntu-latest
-          #  name: starship-x86_64-unknown-linux-musl.tar.gz
-
           - target: x86_64-apple-darwin
             os: macOS-latest
             name: kikot-darwin-amd64
-
-      #  os: [ubuntu-latest, macOS-latest]
     steps:
       - uses: actions/checkout@v3
 
@@ -80,18 +71,8 @@ jobs:
       - name: Setup | Artifacts
         uses: actions/download-artifact@v3
 
-      - name: Debug
-        run: |
-          echo "${{ github.repository }}"
-          ls -lah
-
       - name: Setup | Checksums
         run: for file in kikot-*/kikot-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
-
-      #- name: Setup | Publish Release
-      #  run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release | Add Artifacts to Release
         uses: softprops/action-gh-release@v1
