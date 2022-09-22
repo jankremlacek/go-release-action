@@ -8,14 +8,6 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-#env:
-#  CARGO_INCREMENTAL: 0
-#  CARGO_NET_RETRY: 10
-#  RUST_BACKTRACE: short
-#  RUSTFLAGS: "-D warnings"
-#  RUSTUP_MAX_RETRIES: 10
-#  MACOSX_DEPLOYMENT_TARGET: 10.7
-
 jobs:
 
   # Ensure that the project could be successfully compiled
@@ -44,9 +36,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-    #env:
-    #  RUSTFLAGS: ${{ matrix.rustflags || '' }}
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            name: kikot-linux-adm64
+
+          #- target: x86_64-unknown-linux-musl
+          #  os: ubuntu-latest
+          #  name: starship-x86_64-unknown-linux-musl.tar.gz
+
+          - target: x86_64-apple-darwin
+            os: macOS-latest
+            name: kikot-darwin-amd64
+
+      #  os: [ubuntu-latest, macOS-latest]
     steps:
       - uses: actions/checkout@v3
 
@@ -55,20 +58,15 @@ jobs:
         with:
           go-version: 1.19
 
-      - name: Run Linux Build
-        if: matrix.os == 'ubuntu-latest'
+      - name: Build
         run: |
           go build -v ./...
           ls -lah
+          tar czvf ${{matrix.name}}.tar.ga go-release-action
 
-      - name: Run Mac Build
-        if: matrix.os == 'macos-latest'
-        run: |
-          go build -v ./...
-          ls -lah
 
       - name: Upload the build as an artifact
         uses: actions/upload-artifact@v3
         with:
-          name: build-${{matrix.os}}
-          path: go-release-action
+          name: ${{matrix.name}}.tar.gz
+          path: ${{matrix.name}}.tar.gz
